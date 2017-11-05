@@ -28,7 +28,6 @@ func TestInitialElection(t *testing.T) {
 
 	// is a leader elected?
 	cfg.checkOneLeader()
-
 	// does the leader+term stay the same there is no failure?
 	term1 := cfg.checkTerms()
 	time.Sleep(2 * RaftElectionTimeout)

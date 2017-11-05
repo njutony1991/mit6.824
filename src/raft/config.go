@@ -268,7 +268,6 @@ func (cfg *config) checkOneLeader() int {
 				}
 			}
 		}
-
 		lastTermWithLeader := -1
 		for t, leaders := range leaders {
 			if len(leaders) > 1 {
@@ -293,6 +292,7 @@ func (cfg *config) checkTerms() int {
 	for i := 0; i < cfg.n; i++ {
 		if cfg.connected[i] {
 			xterm, _ := cfg.rafts[i].GetState()
+			fmt.Printf("%d: %d\n", i, xterm)
 			if term == -1 {
 				term = xterm
 			} else if term != xterm {
