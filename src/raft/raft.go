@@ -38,23 +38,6 @@ const (
 )
 
 //
-// as each Raft peer becomes aware that successive log entries are
-// committed, the peer should send an ApplyMsg to the service (or
-// tester) on the same server, via the applyCh passed to Make().
-//
-type ApplyMsg struct {
-	Index       int
-	Command     interface{}
-	UseSnapshot bool   // ignore for lab2; only used in lab3
-	Snapshot    []byte // ignore for lab2; only used in lab3
-}
-
-type Log struct {
-	currentTerm int
-	op          int
-}
-
-//
 // A Go object implementing a single Raft peer.
 //
 type Raft struct {
@@ -167,7 +150,7 @@ func (rf *Raft) getLastIndex() int {
 
 //used under lock
 func (rf *Raft) getLastTerm() int {
-	return rf.Logs[len(rf.Logs)-1].currentTerm
+	return rf.Logs[len(rf.Logs)-1].CurrentTerm
 }
 
 //
@@ -256,7 +239,7 @@ func (rf *Raft) AppendEntries(args AppendEntriesArgs, reply *AppendEntriesReply)
 		return
 	}
 
-	if args.Term > rf.CurrentTerm { // larger term num
+	if rf.CurrentTerm < args.Term { // larger term num
 		rf.converToFollower(args.Term)
 	}
 
@@ -329,6 +312,7 @@ func (rf *Raft) broadcastAppendEntries() {
 		if i != rf.me && rf.GetRole() == STATE_LEADER {
 			go func(id int) {
 				var reply AppendEntriesReply
+				rf.logger.Printf("In broadcastAppendEntries: %v append entries to %v\n", rf.me, id)
 				rf.sendAppendEntries(id, args, &reply)
 			}(i)
 		}
